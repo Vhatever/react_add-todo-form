@@ -4,13 +4,22 @@ import usersFromServer from './api/users';
 import todosFromServer from './api/todos';
 import { TodoList } from './components/TodoList/TodoList';
 
+// ✅ Хелпер для пошуку користувача
+const getUserById = (userId: number) => {
+  return usersFromServer.find(userItem => userItem.id === userId);
+};
+
 export const App = () => {
+  // ✅ Фільтруємо тільки ті todo, де користувач знайдений
   const [todos, setTodos] = useState(
-    todosFromServer.map(todo => ({
-      ...todo,
-      user: usersFromServer.find(u => u.id === todo.userId),
-    })),
+    todosFromServer
+      .map(todo => ({
+        ...todo,
+        user: getUserById(todo.userId),
+      }))
+      .filter(todo => todo.user !== undefined),
   );
+
   const [title, setTitle] = useState('');
   const [userId, setUserId] = useState('');
   const [titleError, setTitleError] = useState(false);
@@ -35,19 +44,26 @@ export const App = () => {
       hasError = true;
     }
 
+    const user = getUserById(+userId);
+
+    // ✅ Не створюємо todo, якщо користувача не знайдено
+    if (!user) {
+      setUserError(true);
+      hasError = true;
+    }
+
     if (hasError) {
       return;
     }
 
     const newId = Math.max(0, ...todos.map(todo => todo.id)) + 1;
-    const user = usersFromServer.find(u => u.id === +userId);
 
     const newTodo = {
       id: newId,
       title: title.trim(),
       userId: +userId,
       completed: false,
-      user,
+      user, // гарантовано існує
     };
 
     setTodos([...todos, newTodo]);
@@ -94,20 +110,21 @@ export const App = () => {
             onChange={handleUserChange}
           >
             <option value="">Choose a user</option>
-            {usersFromServer.map(u => (
-              <option key={u.id} value={u.id}>
-                {u.name}
+            {usersFromServer.map(userItem => (
+              <option key={userItem.id} value={userItem.id}>
+                {userItem.name}
               </option>
             ))}
           </select>
 
-          {userError && <span className="error">Please choose a user</span>}
+          {userError && <span className="error">Pleasechoosea valid user</span>}
         </div>
 
         <button type="submit" data-cy="submitButton">
           Add
         </button>
       </form>
+
       <TodoList todos={todos} />
     </div>
   );

@@ -13,14 +13,18 @@ interface Todo {
   title: string;
   userId: number;
   completed: boolean;
-  user?: User;
+  user: User;
 }
 
-interface Todolist {
-  todos: Todo[];
+interface TodoListProps {
+  todos?: Todo[];
 }
 
-export const TodoList: React.FC<Todolist> = ({ todos }) => {
+export const TodoList: React.FC<TodoListProps> = ({ todos }) => {
+  if (!todos || todos.length === 0) {
+    return <p>No todos available</p>;
+  }
+
   return (
     <section className="TodoList">
       {todos.map(todo => (
