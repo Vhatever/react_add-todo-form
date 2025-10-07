@@ -1,9 +1,5 @@
 import React from 'react';
-
-interface User {
-  name: string;
-  email: string;
-}
+import { User } from '../../App'; // ✅ спільний тип
 
 interface UserInfoProps {
   user: User;

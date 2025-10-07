@@ -1,12 +1,6 @@
 import React from 'react';
 import { TodoInfo } from '../TodoInfo';
-
-interface User {
-  id: number;
-  name: string;
-  username: string;
-  email: string;
-}
+import { User } from '../../App'; // ✅ спільний тип
 
 interface Todo {
   id: number;
@@ -17,7 +11,7 @@ interface Todo {
 }
 
 interface TodoListProps {
-  todos?: Todo[];
+  todos: Todo[];
 }
 
 export const TodoList: React.FC<TodoListProps> = ({ todos }) => {

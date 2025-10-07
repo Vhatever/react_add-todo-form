@@ -1,15 +1,11 @@
 import React from 'react';
-
-interface User {
-  name: string;
-  email: string;
-}
+import { User } from '../../App'; // ✅ спільний тип
 
 interface Todo {
-  id: number | string;
+  id: number;
   title: string;
   completed: boolean;
-  user?: User;
+  user: User;
 }
 
 interface TodoInfoProps {
@@ -22,8 +18,10 @@ export const TodoInfo: React.FC<TodoInfoProps> = ({ todo }) => (
     data-id={todo.id}
   >
     <h2 className="TodoInfo__title">{todo.title}</h2>
-    <a className="UserInfo" href={`mailto:${todo.user?.email}`}>
-      {todo.user?.name}
+
+    {/* ✅ без optional chaining — user гарантовано є */}
+    <a className="UserInfo" href={`mailto:${todo.user.email}`}>
+      {todo.user.name}
     </a>
   </article>
 );

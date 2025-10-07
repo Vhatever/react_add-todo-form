@@ -4,20 +4,33 @@ import usersFromServer from './api/users';
 import todosFromServer from './api/todos';
 import { TodoList } from './components/TodoList/TodoList';
 
-// ✅ Хелпер для пошуку користувача
-const getUserById = (userId: number) => {
+export interface User {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+}
+
+export interface Todo {
+  id: number;
+  title: string;
+  userId: number;
+  completed: boolean;
+  user: User;
+}
+
+const getUserById = (userId: number): User | undefined => {
   return usersFromServer.find(userItem => userItem.id === userId);
 };
 
 export const App = () => {
-  // ✅ Фільтруємо тільки ті todo, де користувач знайдений
-  const [todos, setTodos] = useState(
+  const [todos, setTodos] = useState<Todo[]>(
     todosFromServer
-      .map(todo => ({
-        ...todo,
-        user: getUserById(todo.userId),
-      }))
-      .filter(todo => todo.user !== undefined),
+      .map(todo => {
+        const user = getUserById(todo.userId);
+        return user ? { ...todo, user } : null;
+      })
+      .filter((todo): todo is Todo => todo !== null),
   );
 
   const [title, setTitle] = useState('');
@@ -46,7 +59,6 @@ export const App = () => {
 
     const user = getUserById(+userId);
 
-    // ✅ Не створюємо todo, якщо користувача не знайдено
     if (!user) {
       setUserError(true);
       hasError = true;
@@ -58,12 +70,12 @@ export const App = () => {
 
     const newId = Math.max(0, ...todos.map(todo => todo.id)) + 1;
 
-    const newTodo = {
+    const newTodo: Todo = {
       id: newId,
       title: title.trim(),
       userId: +userId,
       completed: false,
-      user, // гарантовано існує
+      user,
     };
 
     setTodos([...todos, newTodo]);
@@ -117,7 +129,8 @@ export const App = () => {
             ))}
           </select>
 
-          {userError && <span className="error">Pleasechoosea valid user</span>}
+          {/* ✅ точний текст, потрібний для E2E */}
+          {userError && <span className="error">Please choose a user</span>}
         </div>
 
         <button type="submit" data-cy="submitButton">
